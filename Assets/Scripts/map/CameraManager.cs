@@ -4,35 +4,43 @@ using UnityEngine;
 
 public class CameraManager : MonoBehaviour
 {
-    public const float CAM_SIZE_MAX = 1800.0f;  // カメラのsize(描画範囲)の最大値 等倍ズーム(マップ全体が写る)
-    public const float CAM_SIZE_MIN = 360.0f;   // カメラのsize(描画範囲)の最小値  8倍ズーム
-    public const float CAM_SIZE_MG = 600.0f;    // カメラのsize(描画範囲)の変化倍率
+    private const float WIDTH = 6400.0f;        // 全体マップの幅
+    private const float HEIGHT = 3600.0f;       // 全体マップの高さ
 
-    public const float CAM_MOVE_MG = 1.0f;    // カメラの移動量の変化倍率
+    private const float CAM_SIZE_FIX = 600.0f;  // マウスホイールの移動量の補正倍率
+    private const float CAM_MOVE_FIX = 0.5f;    // マウスの移動量の補正倍率
 
-    public const float WIDTH = 6400.0f;         // 全体マップの幅
-    public const float HEIGHT = 3600.0f;        // 全体マップの高さ
+    [SerializeField]
+    private float MAX_MG = 10.0f;               // カメラの最大倍率
+
+    private float cam_size_max;                 // カメラのsize(描画範囲)の最大値
+    private float cam_size_min;                 // カメラのsize(描画範囲)の最小値
+
 
     Camera cam;
 
     void Start()
     {
+        cam_size_max = HEIGHT / 2.0f;
+        cam_size_min = HEIGHT / 2.0f / MAX_MG;
+
         cam = Camera.main;
         cam.gameObject.transform.localPosition = new Vector3(0.0f, 0.0f, -100.0f);
-        cam.orthographicSize = CAM_SIZE_MAX;
+        cam.orthographicSize = cam_size_max;
+
     }
 
 
     // void scaleCamera (float axis) - スクロールの値だけカメラの拡大縮小を行う
     public void scaleCamera(float axis)
     {
-        cam.orthographicSize -= axis * CAM_SIZE_MG;
+        cam.orthographicSize -= axis * CAM_SIZE_FIX;
 
-        if(cam.orthographicSize < CAM_SIZE_MIN)
-            cam.orthographicSize = CAM_SIZE_MIN;
+        if(cam.orthographicSize < cam_size_min)
+            cam.orthographicSize = cam_size_min;
 
-        if (cam.orthographicSize > CAM_SIZE_MAX)
-            cam.orthographicSize = CAM_SIZE_MAX;
+        if (cam.orthographicSize > cam_size_max)
+            cam.orthographicSize = cam_size_max;
 
         Vector2 position = cam.gameObject.transform.localPosition;
         fixPosition(position);
@@ -42,7 +50,7 @@ public class CameraManager : MonoBehaviour
     // void moveCamera (Vector2 movement) - 与えられた変化量だけカメラの移動を行う
     public void moveCamera(Vector2 movement)
     {
-        movement *= CAM_MOVE_MG;
+        movement *= CAM_MOVE_FIX * (cam.orthographicSize / cam_size_min);
 
         Vector3 position = cam.gameObject.transform.localPosition;
 

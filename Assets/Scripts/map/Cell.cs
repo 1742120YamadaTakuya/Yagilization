@@ -35,14 +35,13 @@ public class Cell : MonoBehaviour
     {
         grass.isGrow = isGrow;
         grass.color = color;
-        setEnable(isGrow);
+        gameObject.GetComponent<SpriteRenderer>().enabled = isGrow;
     }
 
-
-    // void setEnable(bool isDraw) - このセルの草の表示/非表示を設定する
-    private void setEnable(bool isDraw)
+    // void setGrass(bool b) - このセルの草の状況を設定する
+    public void setEnable(bool b)
     {
-        gameObject.GetComponent<SpriteRenderer>().enabled = isDraw;
+        gameObject.SetActive(b);
     }
 
 
